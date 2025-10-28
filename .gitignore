@@ -14,6 +14,7 @@ components/.vscode/
 
 # Misc scripts or temp files that may contain tokens
 components/scripts/Untitled-*.json
+components/scripts/reset-project.js
 scripts/reset-project.js
 
 # Logs and caches
