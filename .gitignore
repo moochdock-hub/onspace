@@ -9,6 +9,13 @@ web-build/
 .env.*
 !.env.example
 
+# VS Code workspace settings (may contain local secrets)
+components/.vscode/
+
+# Misc scripts or temp files that may contain tokens
+components/scripts/Untitled-*.json
+scripts/reset-project.js
+
 # Logs and caches
 npm-debug.log*
 yarn-debug.log*
