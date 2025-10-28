@@ -1,0 +1,10 @@
+{
+  "cline.provider": "openrouter",
+  "cline.openRouterApiKey": "REPLACE_WITH_YOUR_OPENROUTER_KEY",
+  "# note": "Do NOT commit real keys. Replace placeholder in your user settings or use apply-cline-settings.ps1 to inject via environment variables.",
+  "cline.anthropicApiKey": "REPLACE_WITH_YOUR_ANTHROPIC_KEY",
+  "cline.model": "claude-3.5-sonnet",
+  "cline.useLocalModel": false,
+  "cline.proxyUrl": "",
+  "cline.autoApproveTerminalCommands": false
+}
