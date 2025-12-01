@@ -1,9 +1,51 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuditSession, AuditContextType, AuditAnalysis } from '../types/audit';
 import { AnalysisEngine } from '../utils/analysisEngine';
 
 const AuditContext = createContext<AuditContextType | undefined>(undefined);
+
+// Simple storage helper that works on web and native
+const useStorage = () => {
+  const isWeb = typeof window !== 'undefined';
+  
+  return {
+    getItem: async (key: string) => {
+      if (isWeb) {
+        return localStorage.getItem(key);
+      }
+      try {
+        const AsyncStorage = await import('@react-native-async-storage/async-storage').then(m => m.default);
+        return AsyncStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    setItem: async (key: string, value: string) => {
+      if (isWeb) {
+        localStorage.setItem(key, value);
+      } else {
+        try {
+          const AsyncStorage = await import('@react-native-async-storage/async-storage').then(m => m.default);
+          return AsyncStorage.setItem(key, value);
+        } catch {
+          return null;
+        }
+      }
+    },
+    removeItem: async (key: string) => {
+      if (isWeb) {
+        localStorage.removeItem(key);
+      } else {
+        try {
+          const AsyncStorage = await import('@react-native-async-storage/async-storage').then(m => m.default);
+          return AsyncStorage.removeItem(key);
+        } catch {
+          return null;
+        }
+      }
+    }
+  };
+};
 
 const STORAGE_KEYS = {
   SESSIONS: '@ego_auditor_sessions',
@@ -17,6 +59,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   const [disclaimerAccepted, setDisclaimerAcceptedState] = useState(false);
 
   const analysisEngine = AnalysisEngine.getInstance();
+  const storage = useStorage();
 
   useEffect(() => {
     loadStoredData();
@@ -25,8 +68,8 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   const loadStoredData = async () => {
     try {
       const [storedSessions, storedDisclaimer] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.SESSIONS),
-        AsyncStorage.getItem(STORAGE_KEYS.DISCLAIMER)
+        storage.getItem(STORAGE_KEYS.SESSIONS),
+        storage.getItem(STORAGE_KEYS.DISCLAIMER)
       ]);
 
       if (storedSessions) {
@@ -43,7 +86,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
 
   const saveSessionsToStorage = async (updatedSessions: AuditSession[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(updatedSessions));
+      await storage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(updatedSessions));
     } catch (error) {
       console.error('Failed to save sessions:', error);
     }
@@ -106,7 +149,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   const setDisclaimerAccepted = async (accepted: boolean) => {
     setDisclaimerAcceptedState(accepted);
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.DISCLAIMER, JSON.stringify(accepted));
+      await storage.setItem(STORAGE_KEYS.DISCLAIMER, JSON.stringify(accepted));
     } catch (error) {
       console.error('Failed to save disclaimer status:', error);
     }
@@ -126,7 +169,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
     setSessions([]);
     setCurrentSession(null);
     try {
-      await AsyncStorage.removeItem(STORAGE_KEYS.SESSIONS);
+      await storage.removeItem(STORAGE_KEYS.SESSIONS);
     } catch (error) {
       console.error('Failed to clear sessions:', error);
     }
