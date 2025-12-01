@@ -1,8 +1,8 @@
 import { AuditAnalysis } from '../types/audit';
 import { CRISIS_KEYWORDS } from './aiPromptTemplate';
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ocdvaptqvkclystgzsai.supabase.co';
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jZHZhcHRxdmtjbHlzdGd6c2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3MzExNDUsImV4cCI6MjA0NTMwNzE0NX0.Ia9Y7j-ntkfRwxdpUKiFrq0cFwO3_u1qW-6rVQOWV4k';
 
 export class AnalysisEngine {
   private static instance: AnalysisEngine;
