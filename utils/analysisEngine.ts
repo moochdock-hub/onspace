@@ -1,8 +1,8 @@
 import { AuditAnalysis } from '../types/audit';
 import { CRISIS_KEYWORDS } from './aiPromptTemplate';
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://ocdvaptqvkclystgzsai.supabase.co';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jZHZhcHRxdmtjbHlzdGd6c2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3MzExNDUsImV4cCI6MjA0NTMwNzE0NX0.Ia9Y7j-ntkfRwxdpUKiFrq0cFwO3_u1qW-6rVQOWV4k';
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
 export class AnalysisEngine {
   private static instance: AnalysisEngine;
@@ -33,7 +33,6 @@ export class AnalysisEngine {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'apikey': SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({
           narrative,
@@ -47,28 +46,37 @@ export class AnalysisEngine {
 
       const aiResult = await response.json();
 
+      // Normalize shape defensively
+      const toArray = (v: any): string[] => Array.isArray(v) ? v.map((x) => String(x)) : (v == null ? [] : [String(v)]);
+      const toString = (v: any): string => v == null ? '' : String(v);
+      const toNullableString = (v: any): string | undefined => {
+        if (v === null || v === undefined) return undefined;
+        const s = String(v).trim().toLowerCase();
+        return (s === 'null' || s === 'undefined' || s === '') ? undefined : String(v);
+      };
+
       if (aiResult.crisisDetected) {
         return {
-          signalScan: aiResult.systemicResonanceScan,
-          mirrorReflection: aiResult.architecturalBlueprint,
-          auditFindings: [aiResult.catalyticOverrideInjection].filter(Boolean),
-          cognitiveBlueprint: aiResult.symbolicTransduction,
-          remedyPath: [aiResult.polarityMirror].filter(Boolean),
-          check: [aiResult.overrideAttunementPrompt].filter(Boolean),
-          yourMove: aiResult.recursiveSelfAudit,
+          signalScan: toArray(aiResult.systemicResonanceScan),
+          mirrorReflection: toArray(aiResult.architecturalBlueprint),
+          auditFindings: [toString(aiResult.catalyticOverrideInjection)].filter(Boolean),
+          cognitiveBlueprint: toString(aiResult.symbolicTransduction),
+          remedyPath: [toString(aiResult.polarityMirror)].filter(Boolean),
+          check: [toString(aiResult.overrideAttunementPrompt)].filter(Boolean),
+          yourMove: toString(toNullableString(aiResult.recursiveSelfAudit) ?? 'self-diagnostic complete.'),
           crisisDetected: true
         } as AuditAnalysis;
       }
 
       // Map vX response fields to app shape
       return {
-        signalScan: aiResult.systemicResonanceScan || ['→ scan initialized'],
-        mirrorReflection: aiResult.architecturalBlueprint || ['schematic loading...'],
-        auditFindings: [aiResult.catalyticOverrideInjection || 'override preparing...'],
-        cognitiveBlueprint: `${aiResult.symbolicTransduction || ''}${aiResult.temporalFractalMapping ? ` | ${aiResult.temporalFractalMapping}` : ''}`.trim(),
-        remedyPath: [aiResult.polarityMirror || 'polarity analysis...'],
-        check: [aiResult.overrideAttunementPrompt || 'attunement prompt...'],
-        yourMove: aiResult.recursiveSelfAudit || 'self-diagnostic complete.'
+        signalScan: toArray(aiResult.systemicResonanceScan).length ? toArray(aiResult.systemicResonanceScan) : ['→ scan initialized'],
+        mirrorReflection: toArray(aiResult.architecturalBlueprint).length ? toArray(aiResult.architecturalBlueprint) : ['schematic loading...'],
+        auditFindings: [toString(aiResult.catalyticOverrideInjection || 'override preparing...')],
+        cognitiveBlueprint: `${toString(aiResult.symbolicTransduction || '')}${aiResult.temporalFractalMapping ? ` | ${toString(aiResult.temporalFractalMapping)}` : ''}`.trim(),
+        remedyPath: [toString(aiResult.polarityMirror || 'polarity analysis...')],
+        check: [toString(aiResult.overrideAttunementPrompt || 'attunement prompt...')],
+        yourMove: toString(toNullableString(aiResult.recursiveSelfAudit) ?? 'self-diagnostic complete.')
       } as AuditAnalysis;
     } catch (error) {
       // Fallback to mock if API fails

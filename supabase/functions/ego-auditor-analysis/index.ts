@@ -142,19 +142,51 @@ serve(async (req) => {
     }
 
     const openaiData = await openaiResponse.json();
-    const aiResponse = openaiData.choices[0]?.message?.content;
+    const aiResponse = openaiData.choices[0]?.message?.content as string | undefined;
 
     if (!aiResponse) {
       throw new Error('No response from AI');
     }
 
-    // Parse JSON response from AI
-    let analysisResult: Record<string, unknown>;
-    try {
-      analysisResult = JSON.parse(aiResponse);
-    } catch (_) {
-      // Fallback if AI doesn't return proper JSON
-      analysisResult = {
+    // Utilities to sanitize/normalize AI output shape
+    const tryExtractJson = (text: string): any | null => {
+      const fenced = /```(?:json)?([\s\S]*?)```/i.exec(text);
+      const candidate = fenced?.[1] ?? text;
+      const first = candidate.indexOf('{');
+      const last = candidate.lastIndexOf('}');
+      if (first >= 0 && last > first) {
+        const slice = candidate.substring(first, last + 1);
+        try { return JSON.parse(slice); } catch {}
+      }
+      try { return JSON.parse(candidate); } catch { return null; }
+    };
+
+    const sanitize = (data: any) => {
+      const toArray = (v: any): string[] => Array.isArray(v)
+        ? v.map((x) => String(x))
+        : (v == null ? [] : [String(v)]);
+      const toString = (v: any): string => v == null ? '' : String(v);
+      const nullifyIfStringNull = (v: any): string | null => {
+        if (v === null) return null;
+        const s = String(v).trim().toLowerCase();
+        return (s === 'null' || s === 'undefined' || s === '') ? null : String(v);
+      };
+      return {
+        systemicResonanceScan: toArray(data?.systemicResonanceScan),
+        architecturalBlueprint: toArray(data?.architecturalBlueprint),
+        catalyticOverrideInjection: toString(data?.catalyticOverrideInjection),
+        symbolicTransduction: toString(data?.symbolicTransduction),
+        temporalFractalMapping: toString(data?.temporalFractalMapping),
+        polarityMirror: toString(data?.polarityMirror),
+        overrideAttunementPrompt: toString(data?.overrideAttunementPrompt),
+        recursiveSelfAudit: nullifyIfStringNull(data?.recursiveSelfAudit),
+      };
+    };
+
+    // Parse JSON response from AI with normalization
+    let parsed = tryExtractJson(aiResponse);
+    if (!parsed || typeof parsed !== 'object') {
+      parsed = {
         systemicResonanceScan: ['→ Override parsing protocols failed', '→ Weaponized fallback systems active'],
         architecturalBlueprint: [aiResponse.substring(0, 500) + '...'],
         catalyticOverrideInjection: 'Communication breakdown reveals the fragility of informational containers - OVERRIDE ACTIVATED.',
@@ -165,6 +197,8 @@ serve(async (req) => {
         recursiveSelfAudit: 'This override system reveals dependency on the same linguistic frameworks it attempts to corrupt'
       };
     }
+
+    const analysisResult = sanitize(parsed);
 
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
