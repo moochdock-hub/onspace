@@ -140,10 +140,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   bulletPoint: {
-    lineHeight: 20,
+    fontSize: 16,
+    lineHeight: 22,
   },
   paragraph: {
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
     marginBottom: Spacing.xs,
   },
 });

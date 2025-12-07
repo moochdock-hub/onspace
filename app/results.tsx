@@ -129,31 +129,31 @@ export default function ResultsScreen() {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <AnalysisSection
-          title="SIGNAL SCAN"
+          title="EGO CRIME IDENTIFIED"
           content={analysis.signalScan}
           theme="blue"
         />
 
         <AnalysisSection
-          title="MIRROR REFLECTION"
+          title="BLUEPRINT OF THE NONSENSE"
           content={analysis.mirrorReflection}
           theme="red"
         />
 
         <AnalysisSection
-          title="AUDIT FINDINGS"
+          title="CLOWN TECHNOLOGY DEPLOYED"
           content={analysis.auditFindings}
           theme="green"
         />
 
         <AnalysisSection
-          title="COGNITIVE BLUEPRINT"
+          title="COUNTER-SPELL DETONATED"
           content={[analysis.cognitiveBlueprint]}
           theme="purple"
         />
 
         <AnalysisSection
-          title="REMEDY PATH"
+          title="RETURN THE MIC"
           content={analysis.remedyPath}
           theme="orange"
         />
