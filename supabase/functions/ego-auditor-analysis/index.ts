@@ -204,11 +204,11 @@ serve(async (req) => {
     // Utilities to sanitize/normalize AI output shape
     const parseAuditResponse = (text: string): any => {
       // Parse the 5-section format:
-      // **1. THE LIE:**
-      // **2. THE ARCHITECTURE:**
-      // **3. TRICKSTER ARSENAL DEPLOYED:**
-      // **4. THE OVERRIDE:**
-      // **5. THE CO-CONSPIRATOR QUESTION:**
+      // **1. EGO CRIME IDENTIFIED:**
+      // **2. BLUEPRINT OF THE NONSENSE:**
+      // **3. CLOWN TECHNOLOGY DEPLOYED:**
+      // **4. COUNTER-SPELL DETONATED:**
+      // **5. RETURN THE MIC:**
       
       const extractSection = (label: string, text: string): string => {
         const regex = new RegExp(`\\*\\*\\d\\.\\s+${label}:\\*\\*\\s*(.+?)(?=\\*\\*\\d\\.\\s|$)`, 'is');
@@ -216,20 +216,20 @@ serve(async (req) => {
         return match ? match[1].trim() : '';
       };
 
-      const lie = extractSection('THE LIE', text);
-      const arch = extractSection('THE ARCHITECTURE', text);
-      const arsenal = extractSection('TRICKSTER ARSENAL DEPLOYED', text);
-      const override = extractSection('THE OVERRIDE', text);
-      const question = extractSection('THE CO-CONSPIRATOR QUESTION', text);
+      const crime = extractSection('EGO CRIME IDENTIFIED', text);
+      const blueprint = extractSection('BLUEPRINT OF THE NONSENSE', text);
+      const tech = extractSection('CLOWN TECHNOLOGY DEPLOYED', text);
+      const spell = extractSection('COUNTER-SPELL DETONATED', text);
+      const mic = extractSection('RETURN THE MIC', text);
 
       return {
-        systemicResonanceScan: [lie].filter(Boolean),
-        architecturalBlueprint: [arch].filter(Boolean),
-        catalyticOverrideInjection: arsenal,
-        symbolicTransduction: override,
+        systemicResonanceScan: [crime].filter(Boolean),
+        architecturalBlueprint: [blueprint].filter(Boolean),
+        catalyticOverrideInjection: tech,
+        symbolicTransduction: spell,
         temporalFractalMapping: '',
         polarityMirror: '',
-        overrideAttunementPrompt: question,
+        overrideAttunementPrompt: mic,
         recursiveSelfAudit: null
       };
     };
