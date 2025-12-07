@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, ChevronRight, Copy } from 'lucide-react-native';
 import { TerminalText } from './TerminalText';
 import { Colors, Spacing } from '../constants/theme';
 import * as Clipboard from 'expo-clipboard';
+import { colorCycleText } from '../utils/colorCycler';
 
 interface AnalysisSectionProps {
   title: string;
@@ -58,19 +59,37 @@ export function AnalysisSection({
 
       {!collapsed && (
         <View style={styles.content}>
-          {content.map((item, index) => (
-            <View key={index} style={styles.contentItem}>
-              {item.startsWith('→') || item.startsWith('⚠️') ? (
-                <TerminalText variant="mono" style={styles.bulletPoint}>
-                  {item}
-                </TerminalText>
-              ) : (
-                <TerminalText style={styles.paragraph}>
-                  {item}
-                </TerminalText>
-              )}
-            </View>
-          ))}
+          {content.map((item, index) => {
+            const segments = useMemo(() => colorCycleText(item), [item]);
+            return (
+              <View key={index} style={styles.contentItem}>
+                {item.startsWith('→') || item.startsWith('⚠️') ? (
+                  <View style={styles.bulletLine}>
+                    {segments.map((segment, segIndex) => (
+                      <TerminalText 
+                        key={segIndex} 
+                        variant="mono" 
+                        style={[styles.bulletPoint, { color: segment.color }]}
+                      >
+                        {segment.text}{segIndex < segments.length - 1 ? ' ' : ''}
+                      </TerminalText>
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.paragraphLine}>
+                    {segments.map((segment, segIndex) => (
+                      <TerminalText 
+                        key={segIndex} 
+                        style={[styles.paragraph, { color: segment.color }]}
+                      >
+                        {segment.text}{segIndex < segments.length - 1 ? ' ' : ''}
+                      </TerminalText>
+                    ))}
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </View>
       )}
     </View>
@@ -110,8 +129,15 @@ const styles = StyleSheet.create({
   contentItem: {
     marginBottom: Spacing.sm,
   },
+  bulletLine: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  paragraphLine: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
   bulletPoint: {
-    color: Colors.primary,
     lineHeight: 20,
   },
   paragraph: {
