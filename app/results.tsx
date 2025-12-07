@@ -74,7 +74,7 @@ export default function ResultsScreen() {
           <ArrowLeft size={24} color={Colors.text} />
         </TouchableOpacity>
         
-        <TerminalText variant="header" color="primary">
+        <TerminalText variant="header" color="primary" animated={false}>
           AUDIT RESULTS
         </TerminalText>
         
@@ -95,7 +95,7 @@ export default function ResultsScreen() {
         <View style={styles.crisisAlert}>
           <AlertTriangle size={24} color={Colors.error} />
           <View style={styles.crisisContent}>
-            <TerminalText variant="header" color="error">
+            <TerminalText variant="header" color="error" animated={false}>
               CRISIS DETECTED
             </TerminalText>
             <TerminalText style={styles.crisisText}>
@@ -189,7 +189,7 @@ export default function ResultsScreen() {
           onPress={handleNewAudit}
           activeOpacity={0.7}
         >
-          <TerminalText variant="header" color="background">
+          <TerminalText variant="header" color="background" animated={false}>
             NEW AUDIT SESSION
           </TerminalText>
         </TouchableOpacity>
