@@ -24,17 +24,21 @@ import { EMERGENCY_RESOURCES } from '../utils/aiPromptTemplate';
 export default function ResultsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentSession, analyzeSession, createSession } = useAudit();
+  const { currentSession, sessions, analyzeSession, createSession } = useAudit();
   const [reanalyzing, setReanalyzing] = useState(false);
 
-  const analysis = currentSession?.analysis;
+  const sessionWithAnalysis = currentSession?.analysis
+    ? currentSession
+    : sessions.find(s => Boolean(s.analysis)) || null;
+  const analysis = sessionWithAnalysis?.analysis || null;
   const crisisDetected = analysis?.crisisDetected;
 
   const handleReanalyze = async () => {
-    if (!currentSession) return;
+    const target = sessionWithAnalysis || currentSession;
+    if (!target) return;
     
     setReanalyzing(true);
-    await analyzeSession(currentSession.id);
+    await analyzeSession(target.id);
     setReanalyzing(false);
   };
 
@@ -53,7 +57,7 @@ export default function ResultsScreen() {
     );
   };
 
-  if (!currentSession || !analysis) {
+  if (!sessionWithAnalysis || !analysis) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <TerminalText variant="header" color="error">
@@ -168,13 +172,13 @@ export default function ResultsScreen() {
 
         <View style={styles.sessionInfo}>
           <TerminalText variant="small" color="text">
-            SESSION ID: {currentSession.id}
+            SESSION ID: {sessionWithAnalysis.id}
           </TerminalText>
           <TerminalText variant="small" color="text">
-            TIMESTAMP: {new Date(currentSession.timestamp).toLocaleString()}
+            TIMESTAMP: {new Date(sessionWithAnalysis.timestamp).toLocaleString()}
           </TerminalText>
           <TerminalText variant="small" color="text">
-            NARRATIVE LENGTH: {currentSession.narrative.length} CHARS
+            NARRATIVE LENGTH: {sessionWithAnalysis.narrative.length} CHARS
           </TerminalText>
         </View>
       </ScrollView>
