@@ -132,10 +132,12 @@ const styles = StyleSheet.create({
   bulletLine: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'flex-start',
   },
   paragraphLine: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'flex-start',
   },
   bulletPoint: {
     lineHeight: 20,
