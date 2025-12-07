@@ -1,6 +1,6 @@
 /**
  * Color cycling utility for jazzy text rendering
- * Cycles through vibrant colors every 4-7 words
+ * Cycles through vibrant colors every 4-7 words using deterministic hashing
  */
 
 export const VIBRANT_COLORS = [
@@ -19,11 +19,25 @@ interface ColorSegment {
   color: string;
 }
 
+// Deterministic hash function to replace Math.random()
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
 export function colorCycleText(text: string): ColorSegment[] {
   const words = text.split(' ');
   const segments: ColorSegment[] = [];
   let colorIndex = 0;
-  let wordsInCurrentSegment = Math.floor(Math.random() * 4) + 4; // 4-7 words
+  
+  // Use hash of text to determine starting word count deterministically
+  const hash = hashCode(text);
+  let wordsInCurrentSegment = (hash % 4) + 4; // 4-7 words, deterministic based on text
 
   let currentText = '';
 
@@ -38,7 +52,9 @@ export function colorCycleText(text: string): ColorSegment[] {
       });
       colorIndex++;
       currentText = '';
-      wordsInCurrentSegment = Math.floor(Math.random() * 4) + 4;
+      // Re-hash based on position to keep deterministic but vary
+      const posHash = hashCode(text + index);
+      wordsInCurrentSegment = (posHash % 4) + 4;
     }
   });
 
