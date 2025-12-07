@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { AuditSession, AuditContextType, AuditAnalysis } from '../types/audit';
 import { AnalysisEngine } from '../utils/analysisEngine';
 
@@ -57,6 +57,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   const [sessions, setSessions] = useState<AuditSession[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [disclaimerAccepted, setDisclaimerAcceptedState] = useState(false);
+  const lastCreatedRef = useRef<AuditSession | null>(null);
 
   const analysisEngine = AnalysisEngine.getInstance();
   const storage = useStorage();
@@ -101,6 +102,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
       isComplete: false
     };
 
+    lastCreatedRef.current = session;
     setCurrentSession(session);
     const updatedSessions = [session, ...sessions];
     setSessions(updatedSessions);
@@ -109,7 +111,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
   };
 
   const analyzeSession = async (sessionId: string) => {
-    const session = sessions.find(s => s.id === sessionId) || currentSession;
+    const session = sessions.find(s => s.id === sessionId) || currentSession || lastCreatedRef.current;
     if (!session) return;
 
     setIsAnalyzing(true);
@@ -133,9 +135,12 @@ export function AuditProvider({ children }: { children: ReactNode }) {
 
       setCurrentSession(updatedSession);
 
-      const updatedSessions = sessions.map(s => 
+      let updatedSessions = sessions.map(s => 
         s.id === sessionId ? updatedSession : s
       );
+      if (!updatedSessions.some(s => s.id === sessionId)) {
+        updatedSessions = [updatedSession, ...updatedSessions];
+      }
       
       setSessions(updatedSessions);
       await saveSessionsToStorage(updatedSessions);
