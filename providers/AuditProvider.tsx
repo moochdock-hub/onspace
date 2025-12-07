@@ -92,7 +92,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const createSession = (narrative: string, images?: string[]) => {
+  const createSession = (narrative: string, images?: string[]): string => {
     const session: AuditSession = {
       id: Date.now().toString(),
       timestamp: Date.now(),
@@ -105,6 +105,7 @@ export function AuditProvider({ children }: { children: ReactNode }) {
     const updatedSessions = [session, ...sessions];
     setSessions(updatedSessions);
     saveSessionsToStorage(updatedSessions);
+    return session.id;
   };
 
   const analyzeSession = async (sessionId: string) => {

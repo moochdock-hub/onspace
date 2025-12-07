@@ -56,15 +56,9 @@ export default function AuditScreen() {
   const handleSubmit = async () => {
     if (narrative.trim().length < 50) return;
 
-    createSession(narrative.trim(), images.length > 0 ? images : undefined);
-    
-    // Find the newly created session and analyze it
-    setTimeout(async () => {
-      if (currentSession) {
-        await analyzeSession(currentSession.id);
-        router.push('/results');
-      }
-    }, 100);
+    const newSessionId = createSession(narrative.trim(), images.length > 0 ? images : undefined);
+    await analyzeSession(newSessionId);
+    router.push('/results');
   };
 
   const runDebugTest = (testType: 'connection' | 'crisis') => {

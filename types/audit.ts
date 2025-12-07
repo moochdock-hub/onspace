@@ -23,7 +23,7 @@ export interface AuditContextType {
   sessions: AuditSession[];
   isAnalyzing: boolean;
   disclaimerAccepted: boolean;
-  createSession: (narrative: string, images?: string[]) => void;
+  createSession: (narrative: string, images?: string[]) => string;
   analyzeSession: (sessionId: string) => Promise<void>;
   setDisclaimerAccepted: (accepted: boolean) => void;
   deleteSession: (sessionId: string) => void;
