@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { ChevronDown, ChevronRight, Copy } from 'lucide-react-native';
 import { TerminalText } from './TerminalText';
 import { Colors, Spacing } from '../constants/theme';
@@ -61,31 +62,43 @@ export function AnalysisSection({
         <View style={styles.content}>
           {content.map((item, index) => {
             const segments = useMemo(() => colorCycleText(item), [item]);
+            const renderColorizedText = () => (
+              <View style={styles.paragraphLine}>
+                {segments.map((segment, segIndex) => (
+                  <TerminalText
+                    key={segIndex}
+                    style={[styles.paragraph, { color: segment.color }]}
+                  >
+                    {segment.text}{segIndex < segments.length - 1 ? ' ' : ''}
+                  </TerminalText>
+                ))}
+              </View>
+            );
+
             return (
               <View key={index} style={styles.contentItem}>
                 {item.startsWith('→') || item.startsWith('⚠️') ? (
-                  <View style={styles.bulletLine}>
-                    {segments.map((segment, segIndex) => (
-                      <TerminalText 
-                        key={segIndex} 
-                        variant="mono" 
-                        style={[styles.bulletPoint, { color: segment.color }]}
-                      >
-                        {segment.text}{segIndex < segments.length - 1 ? ' ' : ''}
-                      </TerminalText>
-                    ))}
-                  </View>
+                  <View style={styles.bulletLine}>{renderColorizedText()}</View>
                 ) : (
-                  <View style={styles.paragraphLine}>
-                    {segments.map((segment, segIndex) => (
-                      <TerminalText 
-                        key={segIndex} 
-                        style={[styles.paragraph, { color: segment.color }]}
-                      >
-                        {segment.text}{segIndex < segments.length - 1 ? ' ' : ''}
-                      </TerminalText>
-                    ))}
-                  </View>
+                  <Markdown
+                    style={markdownStyles}
+                    rules={{
+                      text: (node) => {
+                        const segs = colorCycleText(node.content || '');
+                        return (
+                          <>
+                            {segs.map((seg, i) => (
+                              <TerminalText key={i} style={[styles.paragraph, { color: seg.color }]}>
+                                {seg.text}{i < segs.length - 1 ? ' ' : ''}
+                              </TerminalText>
+                            ))}
+                          </>
+                        );
+                      },
+                    }}
+                  >
+                    {item}
+                  </Markdown>
                 )}
               </View>
             );
@@ -149,3 +162,31 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
 });
+
+const markdownStyles = {
+  body: {
+    color: Colors.text,
+  },
+  paragraph: {
+    color: Colors.text,
+  },
+  heading1: {
+    color: Colors.text,
+  },
+  heading2: {
+    color: Colors.text,
+  },
+  list_item: {
+    color: Colors.text,
+  },
+  bullet_list: {
+    color: Colors.text,
+  },
+  ordered_list: {
+    color: Colors.text,
+  },
+  strong: {
+    color: Colors.text,
+    fontWeight: '700' as const,
+  },
+};
