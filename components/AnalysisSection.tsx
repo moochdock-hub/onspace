@@ -83,16 +83,57 @@ export function AnalysisSection({
                   <Markdown
                     style={markdownStyles}
                     rules={{
-                      text: (node) => {
-                        const segs = colorCycleText(node.content || '');
+                      paragraph: (node) => {
+                        const children = (node.children || []) as any[];
+                        const extract = (n: any): string => {
+                          if (!n) return '';
+                          if (typeof n.content === 'string') return n.content;
+                          if (Array.isArray(n.children)) return n.children.map((c: any) => extract(c)).join(' ');
+                          return '';
+                        };
                         return (
-                          <>
-                            {segs.map((seg, i) => (
-                              <TerminalText key={i} style={[styles.paragraph, { color: seg.color }]}>
-                                {seg.text}{i < segs.length - 1 ? ' ' : ''}
-                              </TerminalText>
-                            ))}
-                          </>
+                          <View style={styles.paragraphLine}>
+                            {children.flatMap((child, idx) => {
+                              const isStrong = child.type === 'strong';
+                              const text = extract(child);
+                              const segs = colorCycleText(text);
+                              return segs.map((seg, i) => (
+                                <TerminalText
+                                  key={`${idx}-${i}`}
+                                  style={[styles.paragraph, isStrong && { fontWeight: '700' }, { color: seg.color }]}
+                                >
+                                  {seg.text}{i < segs.length - 1 ? ' ' : ''}
+                                </TerminalText>
+                              ));
+                            })}
+                          </View>
+                        );
+                      },
+                      list_item: (node) => {
+                        const children = (node.children || []) as any[];
+                        const extract = (n: any): string => {
+                          if (!n) return '';
+                          if (typeof n.content === 'string') return n.content;
+                          if (Array.isArray(n.children)) return n.children.map((c: any) => extract(c)).join(' ');
+                          return '';
+                        };
+                        return (
+                          <View style={styles.paragraphLine}>
+                            <TerminalText style={[styles.paragraph, { color: Colors.text }]}>{'• '}</TerminalText>
+                            {children.flatMap((child, idx) => {
+                              const isStrong = child.type === 'strong';
+                              const text = extract(child);
+                              const segs = colorCycleText(text);
+                              return segs.map((seg, i) => (
+                                <TerminalText
+                                  key={`${idx}-${i}`}
+                                  style={[styles.paragraph, isStrong && { fontWeight: '700' }, { color: seg.color }]}
+                                >
+                                  {seg.text}{i < segs.length - 1 ? ' ' : ''}
+                                </TerminalText>
+                              ));
+                            })}
+                          </View>
                         );
                       },
                     }}
