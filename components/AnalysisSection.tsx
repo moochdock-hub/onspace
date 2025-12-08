@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Markdown from 'react-native-markdown-display';
+import Markdown, { MarkdownIt } from 'react-native-markdown-display';
 import { ChevronDown, ChevronRight, Copy } from 'lucide-react-native';
 import { TerminalText } from './TerminalText';
 import { Colors, Spacing } from '../constants/theme';
@@ -22,6 +22,7 @@ export function AnalysisSection({
 }: AnalysisSectionProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const themeColor = Colors[theme];
+  const mdInstance = MarkdownIt({ breaks: true });
 
   const copyToClipboard = async () => {
     const textToCopy = `${title.toUpperCase()}\n\n${content.join('\n')}`;
@@ -82,7 +83,11 @@ export function AnalysisSection({
                 ) : (
                   <Markdown
                     style={markdownStyles}
+                    markdownit={mdInstance}
                     rules={{
+                      softbreak: () => (
+                        <TerminalText style={styles.paragraph}>{'\n'}</TerminalText>
+                      ),
                       paragraph: (node) => {
                         const children = (node.children || []) as any[];
                         const extract = (n: any): string => {
